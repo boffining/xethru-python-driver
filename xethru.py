@@ -33,19 +33,19 @@ class Xethru:
 		try:
 			self.response_timeout = response_timeout
 			
-			self.serial_connection = serial.Serial(comport, 115200, timeout=1)
+			self.serial_connection = serial.Serial(comport, 115200, timeout=3)
 			print(dir(self))
 		except serial.SerialException:
 			print("SerialException")
 			return
 			
-		except:
-			if not self.__reset_module():
-				print("Reset module failed")
-				self.serial_connection.close()
-				return
-			else:
-				print("Reset module success")
+# 		except:
+		if not self.__reset_module():
+			print("Reset module failed")
+			self.serial_connection.close()
+			return
+		else:
+			print("Reset module success")
 			
 		if app_id == XTS_ID_APP_PRESENCE:
 			self.range_min = XETHRU_PRES_MIN
