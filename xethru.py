@@ -142,11 +142,13 @@ class Xethru:
 	def __reset_module(self):
 		# Send command
 		data = [XTS_SPC_MOD_RESET]
+		print(data)      
 		self._Xethru__transmit_command(data)
 		
 		# Wait until the module is ready
 		while True:
 			resp = self._Xethru__receive_response()
+			print(resp)         
 			if len(resp) == 5:
 				if resp[0] == XTS_SPR_SYSTEM:
 					if resp[1] == XTS_SPRS_READY:
