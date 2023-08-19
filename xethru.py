@@ -65,23 +65,23 @@ class Xethru:
 			return False
 			
 		self.app_id = app_id
-		if not self.__load_application(app_id):
+		if not self._Xethru__load_application(app_id):
 			print("Load application id failed")
 			self.serial_connection.close()
 			return
 			
-		if not self.__set_led_control(led_mode):
+		if not self._Xethru__set_led_control(led_mode):
 			print("Set LED control failed")
 			self.serial_connection.close()
 			return
 			
 			
-		if not self.__set_detection_zone(detection_zone_min, detection_zone_max):
+		if not self._Xethru__set_detection_zone(detection_zone_min, detection_zone_max):
 			print("Set detection zone failed")
 			self.serial_connection.close()
 			return
 			
-		if not self.__set_mode(XTS_SM_RUN):
+		if not self._Xethru__set_mode(XTS_SM_RUN):
 			print("Set mode failed")
 			self.serial_connection.close()
 			return
@@ -91,7 +91,7 @@ class Xethru:
 	def __del__(self):
 		if self.initialized:
 			try:
-				self.__reset_module()
+				self._Xethru__reset_module()
 			
 				self.serial_connection.close()
 			except serial.SerialException:
@@ -104,26 +104,26 @@ class Xethru:
 		# Check response
 		if not self.initialized:
 			return {}
-		resp = self.__receive_response()
+		resp = self._Xethru__receive_response()
 		if len(resp) > 0:
 			if resp[0] == XTS_SPR_APPDATA:
 				if self.app_id == XTS_ID_APP_PRESENCE:
-					if self.__get_integer(resp[1:5]) == XTS_ID_PRESENCE_STATUS:
-						return self.__parse_presence(resp[5:])
+					if self._Xethru__get_integer(resp[1:5]) == XTS_ID_PRESENCE_STATUS:
+						return self._Xethru__parse_presence(resp[5:])
 				elif self.app_id == XTS_ID_APP_RESP:
-					if self.__get_integer(resp[1:5]) == XTS_ID_RESP_STATUS:
-						return self.__parse_respiration(resp[5:])
+					if self._Xethru__get_integer(resp[1:5]) == XTS_ID_RESP_STATUS:
+						return self._Xethru__parse_respiration(resp[5:])
 		return {}
 	
 	def __parse_respiration(self, data):
 		respiration_status = {}
 		
-		respiration_status['Counter'] = self.__get_integer(data[0:4])
+		respiration_status['Counter'] = self._Xethru__get_integer(data[0:4])
 		respiration_status['StateCode'] = data[4] # Only the first byte in the word is valid
-		respiration_status['StateData'] = self.__get_integer(data[8:12])
-		respiration_status['Distance'] = self.__get_float(data[12:16])
-		respiration_status['Movement'] = self.__get_float(data[16:20])
-		respiration_status['SignalQuality'] = self.__get_integer(data[20:24])
+		respiration_status['StateData'] = self._Xethru__get_integer(data[8:12])
+		respiration_status['Distance'] = self._Xethru__get_float(data[12:16])
+		respiration_status['Movement'] = self._Xethru__get_float(data[16:20])
+		respiration_status['SignalQuality'] = self._Xethru__get_integer(data[20:24])
 		
 		return respiration_status
 		
@@ -131,9 +131,9 @@ class Xethru:
 		presence_status = {}
 		
 		presence_status['Presence'] = data[0] # Only the first byte in the word is valid
-		presence_status['Reserved1'] = self.__get_float(data[4:8])
-		presence_status['Reserved2'] = self.__get_float(data[8:12])
-		presence_status['SignalQuality'] = self.__get_integer(data[12:16])
+		presence_status['Reserved1'] = self._Xethru__get_float(data[4:8])
+		presence_status['Reserved2'] = self._Xethru__get_float(data[8:12])
+		presence_status['SignalQuality'] = self._Xethru__get_integer(data[12:16])
 		
 		return presence_status
 	
