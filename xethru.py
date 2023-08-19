@@ -40,7 +40,7 @@ class Xethru:
 			return
 			
 # 		except:
-		if not self.__reset_module():
+		if not self._reset_module():
 			print("Reset module failed")
 			self.serial_connection.close()
 			return
@@ -62,23 +62,23 @@ class Xethru:
 			return False
 			
 		self.app_id = app_id
-		if not self.__load_application(app_id):
+		if not self._load_application(app_id):
 			print("Load application id failed")
 			self.serial_connection.close()
 			return
 			
-		if not self.__set_led_control(led_mode):
+		if not self._set_led_control(led_mode):
 			print("Set LED control failed")
 			self.serial_connection.close()
 			return
 			
 			
-		if not self.__set_detection_zone(detection_zone_min, detection_zone_max):
+		if not self._set_detection_zone(detection_zone_min, detection_zone_max):
 			print("Set detection zone failed")
 			self.serial_connection.close()
 			return
 			
-		if not self.__set_mode(XTS_SM_RUN):
+		if not self._set_mode(XTS_SM_RUN):
 			print("Set mode failed")
 			self.serial_connection.close()
 			return
@@ -88,7 +88,7 @@ class Xethru:
 	def __del__(self):
 		if self.initialized:
 			try:
-				self.__reset_module()
+				self._reset_module()
 			
 				self.serial_connection.close()
 			except serial.SerialException:
@@ -101,48 +101,48 @@ class Xethru:
 		# Check response
 		if not self.initialized:
 			return {}
-		resp = self.__receive_response()
+		resp = self._receive_response()
 		if len(resp) > 0:
 			if resp[0] == XTS_SPR_APPDATA:
 				if self.app_id == XTS_ID_APP_PRESENCE:
-					if self.__get_integer(resp[1:5]) == XTS_ID_PRESENCE_STATUS:
-						return self.__parse_presence(resp[5:])
+					if self._get_integer(resp[1:5]) == XTS_ID_PRESENCE_STATUS:
+						return self._parse_presence(resp[5:])
 				elif self.app_id == XTS_ID_APP_RESP:
-					if self.__get_integer(resp[1:5]) == XTS_ID_RESP_STATUS:
-						return self.__parse_respiration(resp[5:])
+					if self._get_integer(resp[1:5]) == XTS_ID_RESP_STATUS:
+						return self._parse_respiration(resp[5:])
 		return {}
 	
-	def __parse_respiration(self, data):
+	def _parse_respiration(self, data):
 		respiration_status = {}
 		
-		respiration_status['Counter'] = self.__get_integer(data[0:4])
+		respiration_status['Counter'] = self._get_integer(data[0:4])
 		respiration_status['StateCode'] = data[4] # Only the first byte in the word is valid
-		respiration_status['StateData'] = self.__get_integer(data[8:12])
-		respiration_status['Distance'] = self.__get_float(data[12:16])
-		respiration_status['Movement'] = self.__get_float(data[16:20])
-		respiration_status['SignalQuality'] = self.__get_integer(data[20:24])
+		respiration_status['StateData'] = self._get_integer(data[8:12])
+		respiration_status['Distance'] = self._get_float(data[12:16])
+		respiration_status['Movement'] = self._get_float(data[16:20])
+		respiration_status['SignalQuality'] = self._get_integer(data[20:24])
 		
 		return respiration_status
 		
-	def __parse_presence(self, data):
+	def _parse_presence(self, data):
 		presence_status = {}
 		
 		presence_status['Presence'] = data[0] # Only the first byte in the word is valid
-		presence_status['Reserved1'] = self.__get_float(data[4:8])
-		presence_status['Reserved2'] = self.__get_float(data[8:12])
-		presence_status['SignalQuality'] = self.__get_integer(data[12:16])
+		presence_status['Reserved1'] = self._get_float(data[4:8])
+		presence_status['Reserved2'] = self._get_float(data[8:12])
+		presence_status['SignalQuality'] = self._get_integer(data[12:16])
 		
 		return presence_status
 	
-	def __reset_module(self):
+	def _reset_module(self):
 		# Send command
 		data = [XTS_SPC_MOD_RESET]
 		print(data)      
-		self.__transmit_command(data)
+		self._transmit_command(data)
 		
 		# Wait until the module is ready
 		while True:
-			resp = self.__receive_response()
+			resp = self._receive_response()
 			print(resp)      
 			if len(resp) == 5:
 				print("Len is 5") 
@@ -154,49 +154,49 @@ class Xethru:
 			else:
 				return False
 				
-	def __load_application(self, app_id):
+	def _load_application(self, app_id):
 		# Send command
 		data = [XTS_SPC_MOD_LOADAPP]
-		data = self.__append_integer(data, app_id)
-		self.__transmit_command(data)
+		data = self._append_integer(data, app_id)
+		self._transmit_command(data)
 		
 		# Check response
-		resp = self.__receive_response()
+		resp = self._receive_response()
 		if len(resp) > 0:
 			if resp[0] == XTS_SPR_ACK:
 				return True
 		return False
 		
-	def __set_mode(self, mode):
+	def _set_mode(self, mode):
 		# Send command
 		data = [XTS_SPC_MOD_SETMODE, mode]
-		self.__transmit_command(data)
+		self._transmit_command(data)
 		
 		# Some weird dummy data here
-		resp = self.__receive_response()
+		resp = self._receive_response()
 		if len(resp) > 0:
 			if resp[0] == XTS_SPR_ACK:
 				return True
 		# Check actual response
-		resp = self.__receive_response()
+		resp = self._receive_response()
 		if len(resp) > 0:
 			if resp[0] == XTS_SPR_ACK:
 				return True
 		return False
 		
-	def __set_led_control(self, mode):
+	def _set_led_control(self, mode):
 		# Send command
 		data = [XTS_SPC_MOD_SETLEDCONTROL, mode]
-		self.__transmit_command(data)
+		self._transmit_command(data)
 		
 		# Check response
-		resp = self.__receive_response()
+		resp = self._receive_response()
 		if len(resp) > 0:
 			if resp[0] == XTS_SPR_ACK:
 				return True
 		return False
 	
-	def __set_detection_zone(self, min, max):
+	def _set_detection_zone(self, min, max):
 		# Check and correct limits
 		if min < self.range_min:
 			min = self.range_min
@@ -212,25 +212,25 @@ class Xethru:
 			
 		# Send command
 		data = [XTS_SPC_APPCOMMAND, XTS_SPCA_SET]
-		data = self.__append_integer(data, XTS_ID_DETECTION_ZONE)
-		data = self.__append_float(data, min)
-		data = self.__append_float(data, max)
-		self.__transmit_command(data)
+		data = self._append_integer(data, XTS_ID_DETECTION_ZONE)
+		data = self._append_float(data, min)
+		data = self._append_float(data, max)
+		self._transmit_command(data)
 		
 		# Check response
-		resp = self.__receive_response()
+		resp = self._receive_response()
 		if len(resp) > 0:
 			if resp[0] == XTS_SPR_ACK:
 				return True
 		return False
 		
-	def __transmit_command(self, data):
-		self.__add_break_characters(data, XETHRU_ESC)
-		self.__add_break_characters(data, XETHRU_START)
-		self.__add_break_characters(data, XETHRU_END)
+	def _transmit_command(self, data):
+		self._add_break_characters(data, XETHRU_ESC)
+		self._add_break_characters(data, XETHRU_START)
+		self._add_break_characters(data, XETHRU_END)
 				
 		data = [XETHRU_START] + data
-		data.append(self.__calculate_checksum(data))
+		data.append(self._calculate_checksum(data))
 		data.append(XETHRU_END)
 		
 		if self.verbose:
@@ -241,7 +241,7 @@ class Xethru:
 		
 		self.serial_connection.write(bytearray(data))
 	
-	def __receive_response(self):
+	def _receive_response(self):
 		packet_timeout = time.time() + self.response_timeout
 		packet_start = False
 		packet_end = False
@@ -280,7 +280,7 @@ class Xethru:
 			else:
 				data.append(byte)
 				
-		if self.__calculate_checksum(data) != 0:
+		if self._calculate_checksum(data) != 0:
 			return [] # Checksum does not match
 		
 		if self.verbose:
@@ -291,24 +291,24 @@ class Xethru:
 			
 		return data[1:len(data)-1]
 
-	def __append_integer(self, data, value):
+	def _append_integer(self, data, value):
 		for i in range(4):
 			data.append((value>>(i*8))&0xFF)
 		return data
 			
-	def __append_float(self, data, value):
+	def _append_float(self, data, value):
 		float = struct.pack('f', value)
 		for i in range(4):
 			data.append(ord(float[i]))
 		return data
 		
-	def __get_integer(self, data):
+	def _get_integer(self, data):
 		return (data[3]<<24) + (data[2]<<16) + (data[1]<<8) + data[0]
 			
-	def __get_float(self, data):
+	def _get_float(self, data):
 		return struct.unpack('f', chr(data[0]) + chr(data[1]) + chr(data[2]) + chr(data[3]))[0]
 		
-	def __add_break_characters(self, data, flag):
+	def _add_break_characters(self, data, flag):
 		i = 0
 		try:
 			while i < len(data):
@@ -320,7 +320,7 @@ class Xethru:
 		
 		return data
 
-	def __calculate_checksum(self, data):
+	def _calculate_checksum(self, data):
 		sum = 0
 		for byte in data:
 			sum = sum ^ byte
