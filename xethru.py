@@ -140,11 +140,11 @@ class Xethru:
 	def __reset_module(self):
 		# Send command
 		data = [XTS_SPC_MOD_RESET]
-		self.__transmit_command(data)
+		self._Xethru__transmit_command(data)
 		
 		# Wait until the module is ready
 		while True:
-			resp = self.__receive_response()
+			resp = self._Xethru__receive_response()
 			if len(resp) == 5:
 				if resp[0] == XTS_SPR_SYSTEM:
 					if resp[1] == XTS_SPRS_READY:
@@ -155,11 +155,11 @@ class Xethru:
 	def __load_application(self, app_id):
 		# Send command
 		data = [XTS_SPC_MOD_LOADAPP]
-		data = self.__append_integer(data, app_id)
-		self.__transmit_command(data)
+		data = self._Xethru__append_integer(data, app_id)
+		self._Xethru__transmit_command(data)
 		
 		# Check response
-		resp = self.__receive_response()
+		resp = self._Xethru__receive_response()
 		if len(resp) > 0:
 			if resp[0] == XTS_SPR_ACK:
 				return True
@@ -168,15 +168,15 @@ class Xethru:
 	def __set_mode(self, mode):
 		# Send command
 		data = [XTS_SPC_MOD_SETMODE, mode]
-		self.__transmit_command(data)
+		self._Xethru__transmit_command(data)
 		
 		# Some weird dummy data here
-		resp = self.__receive_response()
+		resp = self._Xethru__receive_response()
 		if len(resp) > 0:
 			if resp[0] == XTS_SPR_ACK:
 				return True
 		# Check actual response
-		resp = self.__receive_response()
+		resp = self._Xethru__receive_response()
 		if len(resp) > 0:
 			if resp[0] == XTS_SPR_ACK:
 				return True
@@ -185,10 +185,10 @@ class Xethru:
 	def __set_led_control(self, mode):
 		# Send command
 		data = [XTS_SPC_MOD_SETLEDCONTROL, mode]
-		self.__transmit_command(data)
+		self._Xethru__transmit_command(data)
 		
 		# Check response
-		resp = self.__receive_response()
+		resp = self._Xethru__receive_response()
 		if len(resp) > 0:
 			if resp[0] == XTS_SPR_ACK:
 				return True
@@ -210,25 +210,25 @@ class Xethru:
 			
 		# Send command
 		data = [XTS_SPC_APPCOMMAND, XTS_SPCA_SET]
-		data = self.__append_integer(data, XTS_ID_DETECTION_ZONE)
-		data = self.__append_float(data, min)
-		data = self.__append_float(data, max)
-		self.__transmit_command(data)
+		data = self._Xethru__append_integer(data, XTS_ID_DETECTION_ZONE)
+		data = self._Xethru__append_float(data, min)
+		data = self._Xethru__append_float(data, max)
+		self._Xethru__transmit_command(data)
 		
 		# Check response
-		resp = self.__receive_response()
+		resp = self._Xethru__receive_response()
 		if len(resp) > 0:
 			if resp[0] == XTS_SPR_ACK:
 				return True
 		return False
 		
 	def __transmit_command(self, data):
-		self.__add_break_characters(data, XETHRU_ESC)
-		self.__add_break_characters(data, XETHRU_START)
-		self.__add_break_characters(data, XETHRU_END)
+		self._Xethru__add_break_characters(data, XETHRU_ESC)
+		self._Xethru__add_break_characters(data, XETHRU_START)
+		self._Xethru__add_break_characters(data, XETHRU_END)
 				
 		data = [XETHRU_START] + data
-		data.append(self.__calculate_checksum(data))
+		data.append(self._Xethru__calculate_checksum(data))
 		data.append(XETHRU_END)
 		
 		if self.verbose:
@@ -278,7 +278,7 @@ class Xethru:
 			else:
 				data.append(byte)
 				
-		if self.__calculate_checksum(data) != 0:
+		if self._Xethru.__calculate_checksum(data) != 0:
 			return [] # Checksum does not match
 		
 		if self.verbose:
