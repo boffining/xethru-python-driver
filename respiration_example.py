@@ -4,8 +4,8 @@ import sys
 
 print("Starting XeThru sensor...")
 # sensor = xethru.Xethru("COM4", XTS_ID_APP_RESP, detection_zone_min = 0.5, detection_zone_max = 0.7, led_mode = XT_UI_LED_MODE_FULL)
-# sensor = xethru.Xethru("/dev/ttyACM0", XTS_ID_APP_RESP, detection_zone_min = 0.5, detection_zone_max = 0.7, led_mode = XT_UI_LED_MODE_FULL)
-sensor = xethru.Xethru("/dev/tty.usbmodem101", XTS_ID_APP_RESP, detection_zone_min = 0.5, detection_zone_max = 0.7, led_mode = XT_UI_LED_MODE_FULL)
+sensor = xethru.Xethru("/dev/ttyACM0", XTS_ID_APP_RESP, detection_zone_min = 0.5, detection_zone_max = 0.7, led_mode = XT_UI_LED_MODE_FULL)
+# sensor = xethru.Xethru("/dev/tty.usbmodem101", XTS_ID_APP_RESP, detection_zone_min = 0.5, detection_zone_max = 0.7, led_mode = XT_UI_LED_MODE_FULL)
 print("Ready.")
 print("")
 print(sensor)
