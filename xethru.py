@@ -39,18 +39,18 @@ class Xethru:
 			print("SerialException")
 			return
 			
-# 		try:
-		if not self._Xethru__reset_module():
-			print("Reset module really failed")
-			self.serial_connection.close()
-			return
-		else:
-			print("Reset module success")
-# 		except:
-# 			if not self.__reset_module():
-# 				print("Reset module failed")
-# 				self.serial_connection.close()
-# 				return
+		try:
+			if not self._Xethru__reset_module():
+				print("Reset module really failed")
+				self.serial_connection.close()
+				return
+			else:
+				print("Reset module success")
+		except:
+			if not self.__reset_module():
+				print("Reset module failed")
+				self.serial_connection.close()
+				return
 			
 		if app_id == XTS_ID_APP_PRESENCE:
 			self.range_min = XETHRU_PRES_MIN
