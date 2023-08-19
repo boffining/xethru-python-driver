@@ -278,7 +278,7 @@ class Xethru:
 			else:
 				data.append(byte)
 				
-		if self._Xethru.__calculate_checksum(data) != 0:
+		if self._Xethru__calculate_checksum(data) != 0:
 			return [] # Checksum does not match
 		
 		if self.verbose:
