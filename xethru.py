@@ -27,20 +27,28 @@ import struct
 import time
 
 class Xethru:
-	def __init__(self, comport, app_id, detection_zone_min=0.5, detection_zone_max=2.5, led_mode=XT_UI_LED_MODE_OFF, response_timeout=30, verbose=False):
+	def __init__(self, comport, app_id, detection_zone_min=0.5, detection_zone_max=2.5, led_mode=XT_UI_LED_MODE_OFF, response_timeout=30, verbose=True):
 		self.initialized = False
 		self.verbose = verbose
 		try:
 			self.response_timeout = response_timeout
 			
 			self.serial_connection = serial.Serial(comport, 115200, timeout=1)
+			print(dir(self))
 		except serial.SerialException:
+			print("SerialException")
 			return
 			
-		if not self.__reset_module():
-			print "Reset module failed"
-			self.serial_connection.close()
-			return
+		try:
+			if not self._Xethru__reset_module():
+				print("Reset module really failed")
+			else:
+				print("Reset module success")
+		except:
+			if not self.__reset_module():
+				print("Reset module failed")
+				self.serial_connection.close()
+				return
 			
 		if app_id == XTS_ID_APP_PRESENCE:
 			self.range_min = XETHRU_PRES_MIN
@@ -53,27 +61,28 @@ class Xethru:
 			self.span_min = XETHRU_RESP_SPAN_MIN
 			self.span_max = XETHRU_RESP_SPAN_MAX
 		else:
+			print("MinMaxError")
 			return False
 			
 		self.app_id = app_id
 		if not self.__load_application(app_id):
-			print "Load application id failed"
+			print("Load application id failed")
 			self.serial_connection.close()
 			return
 			
 		if not self.__set_led_control(led_mode):
-			print "Set LED control failed"
+			print("Set LED control failed")
 			self.serial_connection.close()
 			return
 			
 			
 		if not self.__set_detection_zone(detection_zone_min, detection_zone_max):
-			print "Set detection zone failed"
+			print("Set detection zone failed")
 			self.serial_connection.close()
 			return
 			
 		if not self.__set_mode(XTS_SM_RUN):
-			print "Set mode failed"
+			print("Set mode failed")
 			self.serial_connection.close()
 			return
 			
@@ -226,7 +235,7 @@ class Xethru:
 			prt = "Transmitting: "
 			for ch in data:
 				prt = prt + hex(ch) + " "
-			print prt
+			print(prt)
 		
 		self.serial_connection.write(bytearray(data))
 	
@@ -276,7 +285,7 @@ class Xethru:
 			prt = "Received: "
 			for ch in data:
 				prt = prt + hex(ch) + " "
-			print prt
+			print(prt)
 			
 		return data[1:len(data)-1]
 
